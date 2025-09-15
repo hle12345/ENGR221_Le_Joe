@@ -5,7 +5,7 @@ Description: Stores the information for a song
     You do NOT need to modify this file.
 """
 
-class Song():
+class Song:
     # The constructor is run every time a new playlist object is created
     def __init__(self, title, artist):
         self.title = title      # The title of the song
