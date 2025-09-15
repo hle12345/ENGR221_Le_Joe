@@ -3,6 +3,10 @@ Author: Joe Le
 Filename: playlist.py
 Description: Implementation of a playlist as an array with duplicates
 """
+import sys, os
+
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
 
 from song import Song
 
