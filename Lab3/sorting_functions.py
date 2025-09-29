@@ -57,4 +57,4 @@ def get_runtime(function_to_run, list_length):
     return end_time - start_time
 
 if __name__ == '__main__':
-    print(get_runtime(insertion_sort, 100000))
+    print(get_runtime(bubble_sort, 100))
