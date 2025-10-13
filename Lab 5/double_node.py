@@ -55,7 +55,7 @@ class DoubleNode():
     #####
 
     def __check_valid_node(self, node):
-        if type(node) != DoubleNode and node != None:
+        if type(node) != DoubleNode and node is not None:
             raise Exception("Error: Input must be a valid DoubleNode or None")
         return True
     

@@ -1,5 +1,5 @@
 """
-WRITE YOUR PROGRAM HEADER HERE
+Joe Le
 """
 
 import sys, os
@@ -81,10 +81,9 @@ class DoublyLinkedList():
             return None
         removed = self.__first_node
         val = removed.get_value()
-        new_first = removed.get_next_node()
-        self.__first_node = new_first
-        if new_first is not None:
-            new_first.set_previous_node(None)
+        self.__first_node = removed.get_next_node()
+        if self.__first_node is not None:
+            self.__first_node.set_previous_node(None)
         else:
             self.__last_node = None
         return val
@@ -93,11 +92,11 @@ class DoublyLinkedList():
         if self.__last_node is None:
             return None
         removed = self.__last_node
-        val = removed.get_next_node()
-        new_last = removed.get_previous_node()
-        self.__last_node = new_last
-        if new_last is not None:
-            new_last.set_next_node(None)
+        val = removed.get_value()
+        self.__last_node = removed.get_previous_node()
+    
+        if self.__last_node is not None:
+            self.__last_node.set_next_node(None)
         else: 
             self.__first_node = None
         return val
@@ -124,7 +123,7 @@ class DoublyLinkedList():
         cur = self.__first_node
         while cur is not None:
             print (cur.get_value())
-            cur = cur.get_next.node()
+            cur = cur.get_next_node()
 
     def reverse_traverse(self):
         cur = self.__last_node
@@ -147,8 +146,11 @@ class DoublyLinkedList():
         first = True
         while cur is not None:
             if not first:
-                out += "<->"
+                out += " <-> "
             out += str (cur.get_value())
+            first = False
+            cur = cur.get_next_node()
+    
         out += "]" 
         return out
       
