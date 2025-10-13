@@ -34,8 +34,6 @@ class MazeSolver:
                         self.ss.add(self.maze.contents[current.getRow()+rd][current.getCol()+cd])
         return None
 
-
-
      # Add any other helper functions you might want here
 
     def getPath(self):
@@ -72,7 +70,6 @@ class MazeSolver:
             print(row)
 
    
-
 if __name__ == "__main__":
     # The maze to solve
     maze = Maze(["____",
