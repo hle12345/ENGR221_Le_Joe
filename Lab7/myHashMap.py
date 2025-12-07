@@ -27,6 +27,7 @@ class MyHashMap:
             if bucket != []:
                 for entry in bucket:
                     self.put(entry.getKey(), entry.getValue())
+    
 
     """
     Adds the specified key, value pair to the MyHashMap if 
@@ -36,26 +37,17 @@ class MyHashMap:
     Raise an exception if the key is None. """
     def put(self, key, value):
         keyHash = hash(key)
-        if key is None:
-            raise ValueError("key cannot be None")
-
-        # if key already exists, don't insert
-        if self.containsKey(key):
-            return False
-
-        # compute future size from buckets (avoid relying on self.size,
-        # which can be off during/after resize because resize() calls put())
-        current_count = sum(len(b) for b in self.buckets)
-        if (current_count + 1) / self.capacity >= self.load_factor:
-            self.resize()
-
-        # keep and use this line ONLY in put(), as requested
-        index = keyHash % self.capacity
-
-        self.buckets[index].append(MyHashMap.MyHashMapEntry(key, value))
-        # we won't rely on self.size for correctness, but incrementing is harmless
+        # TODO: write your put implementation here
+        idx = hash(key) % self.capacity
+        for entry in self.buckets[idx]:
+            if entry.key == key:
+                entry.value = value
+                return
+        self.buckets[idx].append(self.MyHashMapEntry(key, value))
         self.size += 1
-        return True
+        if self.size / self.capacity >= self.load_factor:
+            self.resize()
+ 
 
     """
     Replaces the value that maps to the given key if it is present.
@@ -64,94 +56,103 @@ class MyHashMap:
     Return true if the key was in this MyHashMap and replaced successfully.
     Raise an exception if the key is None. """
     def replace(self, key, newValue):
-        if key is None:
-            raise ValueError("key cannot be None")
-
-        index = hash(key) % self.capacity
-        for entry in self.buckets[index]:
-            if entry.getKey() == key:
-                entry.setValue(newValue)
+        """
+        Replace the existing value for key with newValue.
+        Return True if key existed and was replaced; otherwise False.
+        """
+        idx = hash(key) % self.capacity
+        for entry in self.buckets[idx]:
+            if entry.key == key:
+                entry.value = newValue   # <-- was 'value'
                 return True
         return False
+
+
+
     """
     Remove the entry corresponding to the given key.
     Return true if an entry for the given key was removed.
     Raise an exception if the key is None. """
     def remove(self, key):
-        if key is None:
-            raise ValueError("key cannot be None")
-
-        index = hash(key) % self.capacity
-        bucket = self.buckets[index]
+        # TODO: write your remove implementation here
+        idx = hash(key) % self.capacity
+        bucket = self.buckets[idx]
         for i, entry in enumerate(bucket):
-            if entry.getKey() == key:
-                del bucket[i]
+            if entry.key == key:
+                removed = bucket.pop(i)
                 self.size -= 1
-                return True
-        return False
+                return removed.value
+        return None
+ 
 
     """
     Adds the key, value pair to the MyHashMap if it is not present.
     Otherwise, replace the existing value for that key with the given value.
     Raise an exception if the key is None. """
     def set(self, key, value):
-        if key is None:
-            raise ValueError("key cannot be None")
-
-        index = hash(key) % self.capacity
-        # update if present
-        for entry in self.buckets[index]:
-            if entry.getKey() == key:
-                entry.setValue(value)
-                return False  # updated existing 
+        # TODO: Write your set implementation here
+        idx = hash(key) % self.capacity
+        for entry in self.buckets[idx]:
+            if entry.key == key:
+                entry.value = value
+                return
+        self.buckets[idx].append(self.MyHashMapEntry(key, value))
+        self.size += 1
+        if self.size / self.capacity >= self.load_factor:
+            self.resize()
+ 
 
     """
     Return the value of the specified key. If the key is not in the
     MyHashMap, return None.
     Raise an exception if the key is None. """
     def get(self, key):
-        if key is None:
-            raise ValueError("key cannot be None")
+        keyHash = hash(key)
+        idx = keyHash % self.capacity
+        for entry in self.buckets[idx]:
+            if entry.key == key:
+                return entry.value
+            return None   # <-- not raise
 
-        index = hash(key) % self.capacity
-        for entry in self.buckets[index]:
-            if entry.getKey() == key:
-                return entry.getValue()
-        return None
+
+
     """
     Return the number of key, value pairs in this MyHashMap. """
     def size(self):
-        return sum(len(b) for b in self.buckets) 
+        # TODO: Write your size implementation here 
+        return self.__size
 
     """
     Return true if the MyHashMap contains no elements, and 
     false otherwise. """
     def isEmpty(self):
-        return self.size() == 0
- 
+        # TODO: Write your isEmpty implementation here
+        return self.size == 0
+
 
     """
     Return true if the specified key is in this MyHashMap. 
     Raise an exception if the key is None. """
     def containsKey(self, key):
-        if key is None:
-            raise ValueError("key cannot be None")
-
-        index = hash(key) % self.capacity
-        for entry in self.buckets[index]:
-            if entry.getKey() == key:
+        # TODO: Write your containsKey implementation here 
+        idx = hash(key) % self.capacity
+        for entry in self.buckets[idx]:
+            if entry.key == key:
                 return True
-        return False 
+        return False
+
 
     """
     Return a list containing the keys of this MyHashMap. 
     If it is empty, return an empty list. """
     def keys(self):
-        output = []
+        # TODO: Write your keys implementation here
+        out = []
         for bucket in self.buckets:
             for entry in bucket:
-                output.append(entry.getKey())
-        return output 
+                out.append(entry.key)
+        return out
+
 
     class MyHashMapEntry:
         def __init__(self, key, value):

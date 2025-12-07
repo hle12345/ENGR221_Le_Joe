@@ -1,1 +1,16 @@
-{}
+{
+  "hashmap_tests.py::TestMyHashMapHomework07::test_set_when_missing": true,
+  "hashmap_tests.py::TestMyHashMapHomework07::test_size_many": true,
+  "box_tests.py::TestBoxHomework07::test_add_duplicate_nickname": true,
+  "box_tests.py::TestBoxHomework07::test_add_new_nickname": true,
+  "box_tests.py::TestBoxHomework07::test_find_all_nicknames_empty": true,
+  "box_tests.py::TestBoxHomework07::test_find_all_nicknames_populated": true,
+  "box_tests.py::TestBoxHomework07::test_find_entry_by_nickname_exists": true,
+  "box_tests.py::TestBoxHomework07::test_find_entry_by_nickname_not_exists": true,
+  "box_tests.py::TestBoxHomework07::test_find_exists": true,
+  "box_tests.py::TestBoxHomework07::test_find_not_exists": true,
+  "box_tests.py::TestBoxHomework07::test_remove_by_nickname_exists": true,
+  "box_tests.py::TestBoxHomework07::test_remove_by_nickname_not_exists": true,
+  "box_tests.py::TestBoxHomework07::test_remove_entry_exists": true,
+  "box_tests.py::TestBoxHomework07::test_remove_entry_not_in_box": true
+}
