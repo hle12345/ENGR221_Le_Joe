@@ -49,10 +49,12 @@ class BinarySearchTree:
     def isEmpty(self):
         """ TODO: ISEMPTY DOCSTRING HERE """
         return self.__root is None
+
     
     def getRoot(self):
         """ TODO: GETROOT DOCSTRING HERE """
         return self.__root
+
 
     def search(self, goalKey):
         """ TODO: SEARCH DOCSTRING HERE """
@@ -60,23 +62,30 @@ class BinarySearchTree:
 
     def __searchHelp(self, node, goalKey):
         """ TODO: __SEARCHHELP DOCSTRING HERE """
-        # Recursive search for goalKey starting at node
+        # Base case: empty subtree, key not found
         if node is None:
             return None
-        if goalKey == node.key:
-            return node
-        elif goalKey < node.key:
+
+        # Recurse to the left or right depending on the key comparison
+        if goalKey < node.key:
             return self.__searchHelp(node.left, goalKey)
-        else:
+        if goalKey > node.key:
             return self.__searchHelp(node.right, goalKey)
+
+        # Keys are equal: found the node
+        return node
+
 
     def lookup(self, goal):
         """ TODO: LOOKUP DOCSTRING HERE """
-        # Return value for key == goal, or raise if absent
-        found = self.search(goal)
-        if found is None:
+        # Use search() to locate the node with the given key
+        node = self.search(goal)
+        # If not found, raise an exception as indicated by the tests
+        if node is None:
             raise Exception("Key not in tree.")
-        return found.value
+        # Otherwise, return the value stored in that node
+        return node.value
+
 
     def findSuccessor(self, subtreeRoot):
         """ TODO: FINDSUCCESSOR DOCSTRING HERE """
@@ -84,13 +93,15 @@ class BinarySearchTree:
     
     def __findSuccessorHelp(self, node):
         """ TODO: __FINDSUCCESSOR DOCSTRING HERE """
-         # Return the left-most (minimum) node in this subtree
+        # Base case: empty subtree has no successor
         if node is None:
             return None
-        cur = node
-        while cur.left is not None:
-            cur = cur.left
-        return cur
+
+        # The successor is the left-most node in this subtree
+        if node.left is None:
+            return node
+        return self.__findSuccessorHelp(node.left)
+
     
     def delete(self, deleteKey):
         """ TODO: DELETE DOCSTRING HERE """
@@ -99,21 +110,11 @@ class BinarySearchTree:
     
     def __deleteHelp(self, node, deleteKey):
         """ TODO: __DELETEHELP DOCSTRING HERE """
-        # Recursive delete. Return new subtree root.
-       
-        """
-        Recursive helper for delete(). Returns the (possibly new) root of this subtree.
-        Cases:
-         • deleteKey < node.key  -> delete in left subtree
-         • deleteKey > node.key  -> delete in right subtree
-         • equal (found node):
-          - 0 children -> return None
-          - 1 child    -> return that child
-          - 2 children -> replace with inorder successor (min of right subtree)
-        """
+        # Base case: empty subtree, nothing to delete
         if node is None:
             return None
 
+        # Recurse to find the node to delete
         if deleteKey < node.key:
             node.left = self.__deleteHelp(node.left, deleteKey)
             return node
@@ -121,24 +122,31 @@ class BinarySearchTree:
             node.right = self.__deleteHelp(node.right, deleteKey)
             return node
 
-        # Found the node to delete
-        # Case 0: no children
+        # Now node.key == deleteKey: this is the node to delete
+
+        # Case 1: no children
         if node.left is None and node.right is None:
-            return None
+            replacement = None
+        # Case 2: only right child
+        elif node.left is None:
+            replacement = node.right
+        # Case 3: only left child
+        elif node.right is None:
+            replacement = node.left
+        else:
+            # Case 4: two children - use inorder successor from right subtree
+            successor = self.__findSuccessorHelp(node.right)
+            # Copy successor's key/value into this node
+            node.key, node.value = successor.key, successor.value
+            # Delete successor node from the right subtree
+            node.right = self.__deleteHelp(node.right, successor.key)
+            replacement = node
 
-        # Case 1a: only right child
-        if node.left is None:
-            return node.right
+        # If this node is the root of the whole tree, update __root
+        if node == self.__root:
+            self.__root = replacement
 
-        # Case 1b: only left child
-        if node.right is None:
-            return node.left
-
-        # Case 2: two children — use inorder successor (min of right subtree)
-        succ = self.__findSuccessorHelp(node.right)
-        node.key, node.value = succ.key, succ.value
-        node.right = self.__deleteHelp(node.right, succ.key)
-        return node
+        return replacement
 
 
     def traverse(self) -> None:
@@ -147,12 +155,13 @@ class BinarySearchTree:
 
     def __traverseHelp(self, node) -> None:
         """ TODO: __TRAVERSEHELP DOCSTRING HERE """
-        # In-order traversal: left, node, right; prints "key:value"
+        # In-order traversal: left subtree, current node, right subtree
         if node is None:
             return
         self.__traverseHelp(node.left)
-        print(f"({node.key}, {node.value})")
+        print(node)
         self.__traverseHelp(node.right)
+
     def __str__(self) -> str:
         """ Represent the tree as a string. Formats as 
             {(rootkey, rootval), {leftsubtree}, {rightsubtree}} """

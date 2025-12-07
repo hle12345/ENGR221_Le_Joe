@@ -1,4 +1,3 @@
 {
-  "bst_tests.py::test_bst_search_empty": true,
-  "bst_tests.py::test_bst_traverse": true
+  "bst_tests.py::test_bst_search_empty": true
 }
