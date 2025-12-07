@@ -1,77 +1,150 @@
-import unittest
 import pytest
-import os, sys
-
-import box 
+import os, sys 
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from box import Box
-
-class TestBoxHomework07(unittest.TestCase):
-    def setUp(self):
-        # Avoid file I/O: we won't call populateBox in tests.
-        self.b = box.Box()
-
-    # i. add()
-    def test_add_new_nickname(self):
-        self.b.add("sparky", "dog")
-        # should be findable
-        e = self.b.findEntryByNickname("sparky")
-        self.assertTrue(e)  # exists (Entry or truthy)
-
-    def test_add_duplicate_nickname(self):
-        self.b.add("sparky", "dog")
-        self.b.add("sparky", "cat")  # duplicate nickname
-        # still only one association for that nickname
-        e = self.b.findEntryByNickname("sparky")
-        # Implementation may return Entry or list; just ensure it's a single nickname mapping
-        self.assertTrue(e)
-
-    # ii. find()
-    def test_find_exists(self):
-        self.b.add("milo", "cat")
-        found = self.b.find("milo", "cat")
-        self.assertTrue(found)
-
-    def test_find_not_exists(self):
-        self.assertFalse(self.b.find("nemo", "fish"))
-
-    # iii. findAllNicknames()
-    def test_find_all_nicknames_populated(self):
-        for n, s in [("a", "axolotl"), ("b", "badger"), ("c", "capybara")]:
-            self.b.add(n, s)
-        self.assertEqual(set(self.b.findAllNicknames()), {"a", "b", "c"})
-
-    def test_find_all_nicknames_empty(self):
-        self.assertEqual(self.b.findAllNicknames(), [])
-
-    # iv. findEntryByNickname()
-    def test_find_entry_by_nickname_exists(self):
-        self.b.add("luna", "cat")
-        self.assertTrue(self.b.findEntryByNickname("luna"))
-
-    def test_find_entry_by_nickname_not_exists(self):
-        self.assertFalse(self.b.findEntryByNickname("ghost"))
-
-    # v. removeByNickname()
-    def test_remove_by_nickname_exists(self):
-        self.b.add("kiki", "bird")
-        self.b.removeByNickname("kiki")
-        self.assertFalse(self.b.findEntryByNickname("kiki"))
-
-    def test_remove_by_nickname_not_exists(self):
-        # Should not raise and leaves box unchanged
-        self.assertFalse(self.b.removeByNickname("nope"))
-    # vi. removeEntry()
-    def test_remove_entry_exists(self):
-        self.b.add("fido", "dog")
-        self.b.removeEntry("fido", "dog")
-        self.assertFalse(self.b.findEntryByNickname("fido"))
-
-    def test_remove_entry_not_in_box(self):
-        self.assertFalse(self.b.removeEntry("milo", "cat"))
+from myHashMap import MyHashMap  # to reset nicknameMap for an empty Box
 
 
-if __name__ == "__main__":
-    unittest.main()
+@pytest.fixture
+def populated_box():
+    """Return a Box that has been populated from entries.txt."""
+    return Box()
+
+
+@pytest.fixture
+def empty_box():
+    """Return an empty Box (no entries)."""
+    b = Box()
+    # Replace the populated nicknameMap with an empty one
+    b.nicknameMap = MyHashMap()
+    return b
+
+
+####
+# add()
+####
+
+@pytest.mark.box
+def test_add_new_nickname(empty_box):
+    # 1) add() a nickname that does not already exist in the Box
+    added = empty_box.add("Sparky", "Pikachu")
+    assert added is True
+    # The nickname should now be present
+    entry = empty_box.findEntryByNickname("Sparky")
+    assert entry is not None
+
+
+@pytest.mark.box
+def test_add_existing_nickname(empty_box):
+    # 2) add() a nickname that already exists in the Box
+    empty_box.add("Sparky", "Pikachu")
+    added_again = empty_box.add("Sparky", "Raichu")
+    # Should not allow duplicate nicknames
+    assert added_again is False
+
+
+####
+# find()
+####
+
+@pytest.mark.box
+def test_find_existing_entry(populated_box):
+    # 1) find() a nickname and species that exists in the Box
+    entry = populated_box.find("Sparky", "Pikachu")
+    # For an existing nickname and species we expect a non-None Entry object
+    assert entry is not None
+
+
+@pytest.mark.box
+def test_find_missing_entry(populated_box):
+    # 2) find() a nickname and species that does not exist in the Box
+    entry = populated_box.find("NotInBox", "UnknownSpecies")
+    assert entry is None
+
+
+####
+# findAllNicknames()
+####
+
+@pytest.mark.box
+def test_findallnicknames_populated(populated_box):
+    # 1) findAllNicknames() of a populated Box
+    nicknames = populated_box.findAllNicknames()
+    assert isinstance(nicknames, list)
+    # There should be at least one nickname in a populated box
+    assert len(nicknames) > 0
+    # A known nickname from entries.txt should appear
+    assert "Sparky" in nicknames
+
+
+@pytest.mark.box
+def test_findallnicknames_empty(empty_box):
+    # 2) findAllNicknames() of an empty Box
+    nicknames = empty_box.findAllNicknames()
+    assert isinstance(nicknames, list)
+    assert nicknames == []
+
+
+####
+# findEntryByNickname()
+####
+
+@pytest.mark.box
+def test_findentrybynickname_exists(populated_box):
+    # 1) findEntryByNickname() that exists in the Box
+    entry = populated_box.findEntryByNickname("Sparky")
+    assert entry is not None
+
+
+@pytest.mark.box
+def test_findentrybynickname_not_exists(populated_box):
+    # 2) findEntryByNickname() that does not exist in the Box
+    entry = populated_box.findEntryByNickname("NotInBox")
+    # The spec says to return an empty list when nickname is not present
+    assert entry == []
+
+
+####
+# removeByNickname()
+####
+
+@pytest.mark.box
+def test_removebynickname_exists(populated_box):
+    # 1) removeByNickname() that exists in the Box
+    # Ensure the nickname is present first
+    assert populated_box.findEntryByNickname("Sparky") is not None
+    removed = populated_box.removeByNickname("Sparky")
+    assert removed is True
+    # After removal, the nickname should not be found
+    assert populated_box.findEntryByNickname("Sparky") == []
+
+
+@pytest.mark.box
+def test_removebynickname_not_exists(populated_box):
+    # 2) removeByNickname() that does not exist in the Box
+    removed = populated_box.removeByNickname("NotInBox")
+    assert removed is False
+
+
+####
+# removeEntry()
+####
+
+@pytest.mark.box
+def test_removeentry_exists(populated_box):
+    # 1) removeEntry() of nickname and species that exists in the Box
+    entry = populated_box.find("Sparky", "Pikachu")
+    assert entry is not None
+    removed = populated_box.removeEntry("Sparky", "Pikachu")
+    assert removed is True
+    # The nickname should no longer be present
+    assert populated_box.findEntryByNickname("Sparky") == []
+
+
+@pytest.mark.box
+def test_removeentry_not_exists(populated_box):
+    # 2) removeEntry() of nickname and species that is not in the Box
+    removed = populated_box.removeEntry("NotInBox", "UnknownSpecies")
+    assert removed is False
