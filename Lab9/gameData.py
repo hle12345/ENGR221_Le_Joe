@@ -39,6 +39,19 @@ class GameData:
         self.__foodCells = [] 
         # A list of cells that contain the snake (from head to tail)
         self.__snakeCells = []
+                # Map each food cell to a priority (1 = low, 2 = medium, 3 = high)
+        # This acts like a simple heap-like priority system.
+        self.__foodPriority = {}   # { BoardCell: int }
+
+        # Score based on priorities of food eaten
+        self.__score = 0
+
+        # Traversal visualization mode:
+        # 0 = off, 1 = preorder, 2 = postorder, 3 = level-order
+        self.__traversalMode = 0
+
+        # Whether balancing/rotation visualization is on
+        self.__balanceModeOn = False
 
         # Whether or not the game is over
         self.__gameOver = False
@@ -71,6 +84,12 @@ class GameData:
         
     def placeSnakeAtStartLocation(self):
         """ Place the snake in the upper left corner, facing east """
+                # Reset snake / food / score for a new game
+        self.__snakeCells = []
+        self.__foodCells = []
+        self.__foodPriority.clear()
+        self.__score = 0
+
 
         head = self.getCell(1, 2)
         body = self.getCell(1, 1)
@@ -131,6 +150,10 @@ class GameData:
             cell.becomeFood()
             self.__foodCells.append(cell)
             self.__freeCells -= 1
+            # Assign a random priority to this food (1=low, 2=med, 3=high)
+            priority = random.choice([1, 2, 3])
+            self.__foodPriority[cell] = priority
+
 
         # Otherwise, only add food if over 30% of our cells are free
         elif self.__freeCells / self.__totalCells > 0.3:
@@ -139,6 +162,14 @@ class GameData:
         # Otherwise, there is too much food on the board already
         else:
             print("Not adding more food")
+            
+    def getFoodCells(self):
+        """Return a list of all cells that currently contain food."""
+        return list(self.__foodCells)
+
+    def getFoodPriority(self, cell):
+        """Return the priority for a given food cell (defaults to 1)."""
+        return self.__foodPriority.get(cell, 1)
 
     ##########################
     # Snake movement methods #
@@ -182,10 +213,12 @@ class GameData:
 
     def addHead(self, cell):
         """Make the given cell the new head of the snake."""
-        # If this cell contains food, remove it from the food list
+                # If this cell contains food, remove it from the food list
         if cell.isFood() and cell in self.__foodCells:
             self.__foodCells.remove(cell)
-            # (free cell count was reduced when food was placed)
+            # Update score based on priority (default priority 1)
+            priority = self.__foodPriority.pop(cell, 1)
+            self.__score += priority
 
         # If the cell was empty, it becomes occupied
         elif cell.isEmpty():
@@ -366,17 +399,20 @@ class GameData:
 
         # Determine the new direction based on the position of the head and neck.
         neck = self.__snakeCells[1]
-        dr = neck.getRow() - new_head.getRow()
-        dc = neck.getCol() - new_head.getCol()
 
-        if dr == 1:
-            self.__currentMode = GameData.SnakeMode.GOING_SOUTH
-        elif dr == -1:
+        # Direction from neck -> head (head moves away from body)
+        dr = new_head.getRow() - neck.getRow()
+        dc = new_head.getCol() - neck.getCol()
+
+        if dr == -1:
             self.__currentMode = GameData.SnakeMode.GOING_NORTH
-        elif dc == 1:
-            self.__currentMode = GameData.SnakeMode.GOING_EAST
+        elif dr == 1:
+            self.__currentMode = GameData.SnakeMode.GOING_SOUTH
         elif dc == -1:
             self.__currentMode = GameData.SnakeMode.GOING_WEST
+        elif dc == 1:
+            self.__currentMode = GameData.SnakeMode.GOING_EAST
+
 
 
     #################################
@@ -421,6 +457,33 @@ class GameData:
                 out += "{}\t".format(cell.parentString())
             out += "\n"
         return out
+    
+    ###############################
+    # Custom feature helper logic #
+    ###############################
+
+    def getScore(self):
+        """Return the current score based on priority foods eaten."""
+        return self.__score
+
+    def cycleTraversalMode(self):
+        """
+        Cycle traversal visualization mode:
+        0 = off, 1 = preorder, 2 = postorder, 3 = level-order.
+        """
+        self.__traversalMode = (self.__traversalMode + 1) % 4
+
+    def getTraversalMode(self):
+        """Return the current traversal visualization mode."""
+        return self.__traversalMode
+
+    def toggleBalanceMode(self):
+        """Toggle the balancing/rotation visualization mode."""
+        self.__balanceModeOn = not self.__balanceModeOn
+
+    def isBalanceModeOn(self):
+        """Return True if balancing/rotation visualization is enabled."""
+        return self.__balanceModeOn
 
     class SnakeMode(Enum):
         """ An enumeration (or enum) to represent the valid

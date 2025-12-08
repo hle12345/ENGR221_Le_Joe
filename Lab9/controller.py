@@ -91,9 +91,14 @@ class Controller():
                 # Enter AI mode
                 elif event.key in self.Keypress.AI.value:
                     self.__data.setAIMode()
-                # Change directionsßd
-                    
-                # TODO fill in to change snake direction
+                # Toggle traversal visualization mode (T key)
+                elif event.key == Preferences.KEY_TRAVERSAL_MODE:
+                    # 0 = off, 1 = preorder, 2 = postorder, 3 = level-order
+                    self.__data.cycleTraversalMode()
+                # Toggle balancing / rotation visualization mode (B key)
+                elif event.key == Preferences.KEY_BALANCE_MODE:
+                    self.__data.toggleBalanceMode()
+                # Change directions
                 elif event.key in self.Keypress.UP.value:
                     self.__data.setDirectionNorth()
                 elif event.key in self.Keypress.DOWN.value:
@@ -102,6 +107,7 @@ class Controller():
                     self.__data.setDirectionWest()
                 elif event.key in self.Keypress.RIGHT.value:
                     self.__data.setDirectionEast()
+
 
     def updateSnake(self):
         """ Move the snake forward one step, either in the current 

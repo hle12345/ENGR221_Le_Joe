@@ -68,3 +68,23 @@ class Preferences:
     HEAD_IMAGE = "trainer.png"
     # Sound to play when eating
     EAT_SOUND = "meow.wav"
+        ###############################
+    # Custom Feature Add-Ons      #
+    ###############################
+
+    # Traversal highlight colors
+    COLOR_TRAVERSAL = pygame.Color("gold")
+    COLOR_TRAVERSAL_SECOND = pygame.Color("yellow")
+
+    # Priority fruit colors (heap-like priorities)
+    COLOR_FRUIT_PRIORITY_HIGH = pygame.Color("red3")
+    COLOR_FRUIT_PRIORITY_MED = pygame.Color("orange3")
+    COLOR_FRUIT_PRIORITY_LOW = pygame.Color("yellow3")
+
+    # Balancing / rotation visual effect
+    ROTATION_SHAKE_AMOUNT = 40      # pixels to shift when unbalanced
+    ROTATION_EDGE_THRESHOLD = 0.0 # fraction of board away from center
+
+    # Keys for custom modes
+    KEY_TRAVERSAL_MODE = pygame.K_t
+    KEY_BALANCE_MODE = pygame.K_b
